@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.source_files = 'Classes/ios'
-  s.resources = 'Assets'
+  s.resources = 'Assets', 'RDLoveSeeker-Localizable.strings'
   s.prefix_header_file = 'Classes/ios/RDLoveSeeker-Prefix.pch'
   s.ios.exclude_files = 'Classes/osx'
   s.osx.exclude_files = 'Classes/ios'

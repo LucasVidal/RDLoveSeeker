@@ -11,6 +11,13 @@
 #import "RDLoveSeekerViewController.h"
 #import "RDLoveSeekerStatusController.h"
 
+static BOOL isDebug;
+static NSInteger daysToRequestRating;
+static NSInteger eventsToRequestRating;
+static BOOL shouldRequestOnNewVersion;
+static NSInteger appStoreID;
+static NSString *feedbackEmailAddress;
+
 @implementation RDLoveSeeker
 
 + (void) logSignificantEvent
@@ -24,7 +31,7 @@
     {
         RDLSLog(@"Already shown!");
         
-        if (SHOULD_REQUEST_ON_NEW_VERSION && ![[RDLoveSeekerStatusController currentBuildVersion] isEqualToString: [RDLoveSeekerStatusController lastVersionUsed]])
+        if (shouldRequestOnNewVersion && ![[RDLoveSeekerStatusController currentBuildVersion] isEqualToString: [RDLoveSeekerStatusController lastVersionUsed]])
         {
             RDLSLog(@"Version changed from %@ to %@. Reseting counters.", [RDLoveSeekerStatusController lastVersionUsed], [RDLoveSeekerStatusController currentBuildVersion]);
             [RDLoveSeekerStatusController resetAllCounters];
@@ -41,7 +48,7 @@
     
     //Verifying for time frame
     NSDate *now = [NSDate date];
-    if ([now timeIntervalSinceDate: installDate] > (DAYS_TO_REQUEST_RATING * 24 * 60 * 60))
+    if ([now timeIntervalSinceDate: installDate] > (daysToRequestRating * 24 * 60 * 60))
     {
         RDLSLog(@"Time frame condition met.");
         [RDLoveSeekerStatusController requestUserRating];
@@ -54,16 +61,45 @@
     
     //Verifying for events frame
     NSInteger events = [RDLoveSeekerStatusController significantEvents];
-    if (events >= EVENTS_TO_REQUEST_RATING) {
+    if (events >= eventsToRequestRating) {
         RDLSLog(@"Events condition met.");
         [RDLoveSeekerStatusController requestUserRating];
         return;
     }
     else
     {
-        RDLSLog(@"Did not meet events count condition. (%d < %d)", events, EVENTS_TO_REQUEST_RATING);
+        RDLSLog(@"Did not meet events count condition. (%d < %d)", events, eventsToRequestRating);
     }
 }
 
++ (NSInteger) appStoreID
+{
+    return appStoreID;
+}
+
++ (NSString *) feedbackEmailAddress
+{
+    return feedbackEmailAddress;
+}
+
++ (void) setDebug: (BOOL) configDebug {
+    isDebug = configDebug;
+}
++ (void) setDaysToRequestRating: (NSInteger) configDays {
+    daysToRequestRating = configDays;
+}
+
++ (void) setEventsToRequestRating: (NSInteger) configEvents {
+    eventsToRequestRating = configEvents;
+}
++ (void) setShouldRequestOnNewVersion: (BOOL) configShouldRequestOnNewVersion {
+    shouldRequestOnNewVersion = configShouldRequestOnNewVersion;
+}
++ (void) setAppStoreID: (NSInteger) configAppStoreID {
+    appStoreID = configAppStoreID;
+}
++ (void) setFeedbackEmailAddress: (NSString *) configFeedbackEmailAddress {
+    feedbackEmailAddress = configFeedbackEmailAddress;
+}
 
 @end

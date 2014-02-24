@@ -22,6 +22,8 @@ static RDLoveSeekerViewController *loveSeekerVC;
 
 + (void) setHasBeenShown: (BOOL) b
 {
+    if (b) [self.class setCurrentVersionAsLast];
+
     [[NSUserDefaults standardUserDefaults] setBool: b forKey:kHasBeenShown];
 }
 
@@ -43,10 +45,17 @@ static RDLoveSeekerViewController *loveSeekerVC;
     return [info objectForKey:@"CFBundleShortVersionString"];
 }
 
++ (void) setCurrentVersionAsLast
+{
+    RDLSLog(@"setting %@ as last version used", [self.class currentBuildVersion]);
+    [[NSUserDefaults standardUserDefaults] setObject: [self.class currentBuildVersion] forKey:kLastVersionRequested];
+}
+
 + (void) resetAllCounters
 {
     [self.class setHasBeenShown: NO];
     [self.class setInstallDate];
+    [self.class setCurrentVersionAsLast];
     [[NSUserDefaults standardUserDefaults] setInteger: 0 forKey: kSignificantEvents];
 }
 

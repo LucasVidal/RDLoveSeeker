@@ -12,13 +12,16 @@
 
 @interface RDLoveSeekerViewController ()
 
+@property (nonatomic, strong) NSBundle *bundle;
+
 @end
 
 typedef enum {
     AlertDoYouLoveRestorando = 0,
     AlertWeAreSoHappyToHearThat,
     AlertWhatCanWeDoToMakeYouLoveUs,
-    AlertErrorSendingFeedback
+    AlertErrorSendingFeedback,
+    AlertThanksForYourFeedback
 } Alerts;
 
 @implementation RDLoveSeekerViewController
@@ -59,8 +62,8 @@ typedef enum {
             alert = [[UIAlertView alloc] initWithTitle: NSLocalizedString(@"Do you love Restorando?",nil)
                                                message: nil
                                               delegate: self
-                                     cancelButtonTitle: NSLocalizedString(@"NO",nil)
-                                     otherButtonTitles: NSLocalizedString(@"YES",nil), nil];
+                                     cancelButtonTitle: NSLocalizedString(@"No",nil)
+                                     otherButtonTitles: NSLocalizedString(@"Yes",nil), nil];
             break;
             
         case AlertWeAreSoHappyToHearThat:           //positive review
@@ -68,7 +71,7 @@ typedef enum {
                                                message: NSLocalizedString(@"It'd be really helpful if you rated us.",nil)
                                               delegate: self
                                      cancelButtonTitle: NSLocalizedString(@"No thanks",nil)
-                                     otherButtonTitles: NSLocalizedString(@"YES",nil), NSLocalizedString(@"Not now",nil), nil];
+                                     otherButtonTitles: NSLocalizedString(@"Rate app",nil), NSLocalizedString(@"Not now",nil), nil];
             break;
             
         case AlertWhatCanWeDoToMakeYouLoveUs:       //negative review
@@ -77,6 +80,14 @@ typedef enum {
                                              delegate: self
                                     cancelButtonTitle: NSLocalizedString(@"No thanks",nil)
                                     otherButtonTitles: NSLocalizedString(@"Send email",nil), NSLocalizedString(@"Not now",nil), nil];
+            break;
+        
+        case AlertThanksForYourFeedback:       //negative review
+            alert = [[UIAlertView alloc] initWithTitle: NSLocalizedString(@"Thank you for helping us improve!",nil)
+                                               message: @""
+                                              delegate: self
+                                     cancelButtonTitle: NSLocalizedString(@"OK",nil)
+                                     otherButtonTitles: nil];
             break;
             
         default:
@@ -89,7 +100,7 @@ typedef enum {
 
 - (void) goToAppStore
 {
-    NSString *str = [NSString stringWithFormat: @"itms-apps://itunes.apple.com/app/id%d", APPSTORE_APP_ID];
+    NSString *str = [NSString stringWithFormat: @"itms-apps://itunes.apple.com/app/id%d", [RDLoveSeeker appStoreID]];
     [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
 }
 
@@ -100,8 +111,8 @@ typedef enum {
     [mailComposer setMailComposeDelegate: self];
     
     if ([MFMailComposeViewController canSendMail]) {
-        [mailComposer setToRecipients:@[FEEDBACK_EMAIL_ADDRESS]];
-        [mailComposer setSubject:NSLocalizedString(@"Feedback Email subject",nil)];;
+        [mailComposer setToRecipients:@[[RDLoveSeeker feedbackEmailAddress]]];
+        [mailComposer setSubject: NSLocalizedString(@"Feedback Email subject", nil)];
         [mailComposer setMessageBody:NSLocalizedString(@"Feedback Email body", nil) isHTML:NO];
         
         [self presentViewController:mailComposer animated:YES completion:nil];
@@ -169,6 +180,10 @@ typedef enum {
             }
             break;
             
+        case AlertThanksForYourFeedback:
+        {
+            [self doNotAskAgain];
+        }
         default:
             break;
     }
@@ -184,7 +199,7 @@ typedef enum {
     if (!error)
     {
         if (result == MFMailComposeResultSent)
-            [self doNotAskAgain];
+            [self showDialog: AlertThanksForYourFeedback];
         else
             [self askAgainLater];
     }
